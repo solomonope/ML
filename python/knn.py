@@ -13,5 +13,8 @@ def createdataset():
     
 def classify0(inX,dataset,labels,k):
     dataSetSize = dataset.shape[0];
+    diffmat = numpy.tile(inX,(dataSetSize,1)) - dataset;
+    sqDiffMat = diffmat ** 2;
+    
     
     return;
