@@ -1,5 +1,6 @@
 import numpy;
 import operator;
+import os;
 
 def createdataset():
     
@@ -26,3 +27,51 @@ def classify0(inX,dataset,labels,k):
     
     sortedClassCount = sorted(classCount.iteritems(),key=operator.itemgetter(1), reverse=True);
     return sortedClassCount[0][0];
+    
+    
+
+def filetoMatrix(filename):
+    
+    fr = open(filename);
+    numberOfLines = len( fr.readlines() );
+    returnMat = numpy.zeros((numberOfLines,3));
+    classLabelVector = [];
+    
+    fr = open(filename);
+    index = 0;
+    
+    for line in fr.readlines():
+        line = line.strip();
+        listfromline = line.split('\t');
+        returnMat[index,:] = listfromline[0:3];
+        classLabelVector.append(int(listfromline[-1]));
+        #classLabelVector.append(int(listfromline[-1]));
+        index += 1;
+    return returnMat,classLabelVector;
+    
+def file2matrix(filename):
+    
+    fr = open(filename)
+    numberOfLines = len(fr.readlines())         #get the number of lines in the file
+    returnMat = numpy.zeros((numberOfLines,3))        #prepare matrix to return
+    classLabelVector = []                       #prepare labels return   
+    fr = open(filename)
+    index = 0
+    for line in fr.readlines():
+        line = line.strip()
+        listFromLine = line.split('\t')
+        returnMat[index,:] = listFromLine[0:3]
+        classLabelVector.append(int(listFromLine[-1]))
+        index += 1
+    return returnMat,classLabelVector
+    
+    
+    
+
+def autonorm(dataset):
+    minValues = dataset.min(0);
+    maxValues = dataset.max(0);
+    
+    ranges =  maxValues - minvalues
+    
+    return;

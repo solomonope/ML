@@ -38,5 +38,6 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="KNN\" />
+    <Folder Include="New Folder\" />
   </ItemGroup>
 </Project>
