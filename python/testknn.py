@@ -18,7 +18,7 @@ print(label);
 
 
 #test loading file
-datingDataMat,datingLabels = knn.filetoMatrix('C:\\Users\Folorunsho Solomon\\Documents\\GitHub\\ML\\python\\datingTestSet.txt');
+datingDataMat,datingLabels = knn.filetoMatrix('C:\\Users\Folorunsho Solomon\\Documents\\GitHub\\ML\\python\\datingTestSet2.txt');
 
 print(datingDataMat);
 
@@ -32,3 +32,7 @@ ax = fig.add_subplot(111)
 #ax.scatter(datingDataMat[:,1], datingDataMat[:,2])
 ax.scatter(datingDataMat[:,1], datingDataMat[:,2],15.0* array(datingLabels), 15.0*array(datingLabels))
 plt.show()
+
+
+
+knn.datingClassTest();

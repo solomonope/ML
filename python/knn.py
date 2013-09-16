@@ -72,6 +72,25 @@ def autonorm(dataset):
     minValues = dataset.min(0);
     maxValues = dataset.max(0);
     
-    ranges =  maxValues - minvalues
+    ranges =  maxValues - minValues;
+    normDataSet = numpy.zeros (numpy.shape(dataset));
+    m =   dataset.shape[0];
+    normDataSet = dataset - numpy.tile(minValues, (m,1));
+    normDataSet = normDataSet/numpy.tile(ranges, (m,1));
+    return normDataSet, ranges, minValues;
     
-    return;
+    
+
+def datingClassTest():
+    hoRatio = 0.50      #hold out 10%
+    datingDataMat,datingLabels = filetoMatrix('C:\\Users\Folorunsho Solomon\\Documents\\GitHub\\ML\\python\\datingTestSet2.txt')       #load data setfrom file
+    normMat, ranges, minVals = autonorm(datingDataMat)
+    m = normMat.shape[0]
+    numTestVecs = int(m*hoRatio)
+    errorCount = 0.0
+    for i in range(numTestVecs):
+        classifierResult = classify0(normMat[i,:],normMat[numTestVecs:m,:],datingLabels[numTestVecs:m],3)
+        print "the classifier came back with: %d, the real answer is: %d" % (classifierResult, datingLabels[i])
+        if (classifierResult != datingLabels[i]): errorCount += 1.0
+    print "the total error rate is: %f" % (errorCount/float(numTestVecs))
+    print errorCount
