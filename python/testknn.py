@@ -3,7 +3,7 @@ import operator;
 from numpy import *;
 
 #TESt creating  datasets
-group, labels = knn.createdataset();
+group, labels = knn.createdataset() ;
 
 
 print(group);
