@@ -7,11 +7,16 @@ package com.innovworks.jobmanager;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.quartz.Job;
+import static org.quartz.JobBuilder.newJob;
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import org.quartz.Trigger;
+import static org.quartz.TriggerBuilder.newTrigger;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.stereotype.Component;
 
@@ -26,10 +31,29 @@ public class KimonoJobManager {
     private final List<KimonoJob> kimonoJobs;
     private final SchedulerFactory schedulerFactory;
 
-    private class QuartzJob {
+    private JobDetail creatJobDetail(String jobName, String jobGroup, Class<Job> jobClss) {
+        return newJob(jobClss).withIdentity(jobName, jobGroup).build();
+    }
 
-        JobDetail jobDetail;
-        Trigger trigger;
+    private Trigger createJobTrigger(String triggerName, String triggerGroup, int interval) {
+        return newTrigger().withIdentity(triggerName, triggerGroup).startNow().withSchedule(simpleSchedule().withIntervalInSeconds(interval).repeatForever()).build();
+    }
+
+    public List<KimonoJob> getAllScheduledJobs(KimonoJob job) throws SchedulerException {
+        List<JobExecutionContext> jobExecutionContexts = scheduler.getCurrentlyExecutingJobs();
+        for (JobExecutionContext jobExecutionContext : jobExecutionContexts) {
+            for (KimonoJob kimonoJob : kimonoJobs) {
+                if (kimonoJob.getName().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getName()) && kimonoJob.getGroup().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getGroup())) {
+                    kimonoJob.setStartTime(jobExecutionContext.getTrigger().getStartTime());
+                    kimonoJob.setEndTime(jobExecutionContext.getTrigger().getEndTime());
+                    kimonoJob.setNextFireTime(jobExecutionContext.getTrigger().getNextFireTime());
+                    kimonoJob.setPreviousFireTime(jobExecutionContext.getTrigger().getPreviousFireTime());
+                    kimonoJob.setMayFireAgain(jobExecutionContext.getTrigger().mayFireAgain());
+                }
+            }
+
+        }
+        return this.kimonoJobs;
     }
 
     public KimonoJobManager() throws SchedulerException {
@@ -44,30 +68,62 @@ public class KimonoJobManager {
     }
 
     public void scheduleJob(KimonoJob kimonoJob) throws SchedulerException {
-
-        // newJob(HelloJob.class) .withIdentity("myJob", "group1").build();
+        this.scheduler.scheduleJob(creatJobDetail(kimonoJob.getName(), kimonoJob.getGroup(), kimonoJob.getJobClass()), createJobTrigger(kimonoJob.getName(), kimonoJob.getGroup(), kimonoJob.getJobInterval()));
         kimonoJobs.add(kimonoJob);
-        //fire job added event;
-        List<?> jobs = scheduler.getCurrentlyExecutingJobs();
     }
 
-    public void removeJob(KimonoJob kimonoJob) {
+    public void removeJob(KimonoJob kimonoJob) throws SchedulerException {
+        List<JobExecutionContext> jobExecutionContexts = scheduler.getCurrentlyExecutingJobs();
+        for (JobExecutionContext jobExecutionContext : jobExecutionContexts) {
+            if (kimonoJob.getName().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getName()) && kimonoJob.getGroup().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getGroup())) {
+                scheduler.deleteJob(jobExecutionContext.getTrigger().getJobKey());
+                kimonoJobs.remove(kimonoJob);
+            }
+        }
     }
 
-    public void stopJob(KimonoJob kimonoJob) {
-    }
-
-    public void pauseJob(KimonoJob kimonoJob) {
-    }
-
-    public void pauseScheduler() {
-
-    }
-
-    public void restartScheduler() {
+    public void stopJob(KimonoJob kimonoJob) throws SchedulerException {
+        List<JobExecutionContext> jobExecutionContexts = scheduler.getCurrentlyExecutingJobs();
+        for (JobExecutionContext jobExecutionContext : jobExecutionContexts) {
+            if (kimonoJob.getName().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getName()) && kimonoJob.getGroup().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getGroup())) {
+                scheduler.unscheduleJob(jobExecutionContext.getTrigger().getKey());
+            }
+        }
 
     }
 
-    public void stopScheduler() {
+    public void pauseJob(KimonoJob kimonoJob) throws SchedulerException {
+        List<JobExecutionContext> jobExecutionContexts = scheduler.getCurrentlyExecutingJobs();
+        for (JobExecutionContext jobExecutionContext : jobExecutionContexts) {
+            if (kimonoJob.getName().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getName()) && kimonoJob.getGroup().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getGroup())) {
+                scheduler.pauseJob(jobExecutionContext.getTrigger().getJobKey());
+            }
+        }
     }
+
+    public void resumeJob(KimonoJob kimonoJob) throws SchedulerException {
+        List<JobExecutionContext> jobExecutionContexts = scheduler.getCurrentlyExecutingJobs();
+        for (JobExecutionContext jobExecutionContext : jobExecutionContexts) {
+            if (kimonoJob.getName().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getName()) && kimonoJob.getGroup().equalsIgnoreCase(jobExecutionContext.getTrigger().getJobKey().getGroup())) {
+                scheduler.resumeJob(jobExecutionContext.getTrigger().getJobKey());
+            }
+        }
+    }
+
+    public void pauseScheduler() throws SchedulerException {
+        this.scheduler.pauseAll();
+
+    }
+
+    public void restartScheduler() throws SchedulerException {
+        this.scheduler.shutdown();
+        this.scheduler.start();
+        this.scheduler.resumeAll();
+
+    }
+
+    public void stopScheduler() throws SchedulerException {
+         this.scheduler.shutdown();
+    }
+
 }

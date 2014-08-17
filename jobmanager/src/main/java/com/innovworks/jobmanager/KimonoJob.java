@@ -16,11 +16,12 @@ public class KimonoJob {
 
     private String name;
     private String group;
-    private long jobInterval;
-    private Date fireTime;
-    private Date scheduledFireTime;
+    private int jobInterval;
     private Date previousFireTime;
     private Date nextFireTime;
+    public boolean mayFireAgain;
+    public Date startTime;
+    public Date endTime;
     private Class<Job> jobClass;
 
     public String getName() {
@@ -47,28 +48,12 @@ public class KimonoJob {
         this.jobClass = jobClass;
     }
 
-    public long getJobInterval() {
+    public int getJobInterval() {
         return jobInterval;
     }
 
-    public void setJobInterval(long jobInterval) {
+    public void setJobInterval(int jobInterval) {
         this.jobInterval = jobInterval;
-    }
-
-    public Date getFireTime() {
-        return fireTime;
-    }
-
-    public void setFireTime(Date fireTime) {
-        this.fireTime = fireTime;
-    }
-
-    public Date getScheduledFireTime() {
-        return scheduledFireTime;
-    }
-
-    public void setScheduledFireTime(Date scheduledFireTime) {
-        this.scheduledFireTime = scheduledFireTime;
     }
 
     public Date getPreviousFireTime() {
@@ -85,6 +70,30 @@ public class KimonoJob {
 
     public void setNextFireTime(Date nextFireTime) {
         this.nextFireTime = nextFireTime;
+    }
+
+    public boolean isMayFireAgain() {
+        return mayFireAgain;
+    }
+
+    public void setMayFireAgain(boolean mayFireAgain) {
+        this.mayFireAgain = mayFireAgain;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
 }
