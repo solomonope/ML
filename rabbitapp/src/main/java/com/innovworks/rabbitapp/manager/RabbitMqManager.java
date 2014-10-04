@@ -87,6 +87,22 @@ public class RabbitMqManager implements ShutdownListener {
         }
     }
 
+    public <T> T call(ChannelCallable<T> channelCallable) {
+        final Channel channel = this.createChannel();
+        T response = null;
+        try {
+            if (channel != null) {
+                response = channelCallable.call(channel);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(RabbitMqManager.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        } finally {
+            closeChannel(channel);
+        }
+        return response;
+    }
+
     private void asyncWaitAndReconnect() {
         this.scheduledExceutorService.schedule(new Runnable() {
             @Override
